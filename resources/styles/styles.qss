@@ -1,25 +1,14 @@
-QFrame#KeyTile {{
-                background-color: {bg_color};
-                border: 1.5px solid {active_border};
-                border-radius: 8px;
-            }}
+QFrame#KeyTile {
+    background-color: #9120425e;
+    border: 1px solid #a4a8a0;
+    border-radius: 8px;
+}
 
-            QFrame#KeyTile QLabel {{
-                color: {text_color};
-                background: transparent;
-            }}
-
- QFrame#KeyTile {
-                background-color: #61afef;
-                border: 1.5px solid #98c379;
-                border-radius: 8px;
-            }
-
-            QFrame#KeyTile QLabel {
-                color: #1e2227;
-                font-weight: bold;
-                background: transparent;
-            }            
+QFrame#KeyTile QLabel {
+    color: #e9e9e9;
+    font-weight: bold;
+    background: transparent;
+}            
 
 QDialog {
     background-color: #1e222b;
@@ -80,7 +69,9 @@ QPushButton:hover {
     background-color: #5298d2;
 }            
 
+
+
 QFrame#HUDContainer {
-    background-color: #16181c;
+    background-color: #8116181c;
     border-radius: 12px;
 }
