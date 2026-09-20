@@ -204,6 +204,11 @@ class ActionDeckHUD(QWidget):
                     container,
                 )
 
+                tile.triggered.connect(
+                    lambda tile=tile:
+                        self.execute_tile(tile)
+                )                  
+
                 self.tiles[
                     key
                 ] = tile
@@ -232,6 +237,33 @@ class ActionDeckHUD(QWidget):
 
         self.center_on_screen()
 
+    #
+    # Ativa
+    #
+
+    def execute_tile(self, tile: KeyTile) -> None:
+
+        tile.trigger_visual_feedback()
+
+        action = tile.action
+
+        if action is None:
+            return
+
+        QTimer.singleShot(
+            50,
+            lambda action=action:
+                ActionRunner.execute(action)
+        )
+
+        if (
+            self.auto_close_on_execute
+            and action.action_type != ActionType.HUD_ACTION
+        ):
+            QTimer.singleShot(
+                70,
+                self.hide
+            )
     # ---------------------------------------------------------
     # Centraliza
     # ---------------------------------------------------------
@@ -377,40 +409,11 @@ class ActionDeckHUD(QWidget):
 
             return
 
-        tile = self.tiles[
-            key_text
-        ]
+###
+        tile = self.tiles[key_text]
 
-        tile.trigger_visual_feedback()
-
-        action = self.actions.get(
-            key_text
-        )
-
-        if action is not None:
-
-            # Executa a ação
-            QTimer.singleShot(
-                50,
-                lambda action=action:
-                    ActionRunner.execute(
-                        action
-                    ),
-            )
-
-            # -------------------------------------------------
-            # Não fecha o HUD para HUD_ACTION
-            # -------------------------------------------------
-
-            if (
-                self.auto_close_on_execute
-                and action.action_type
-                != ActionType.HUD_ACTION
-            ):
-
-                QTimer.singleShot(
-                    70,
-                    self.hide,
-                )
+        self.execute_tile(tile)
 
         event.accept()
+###
+

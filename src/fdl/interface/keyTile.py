@@ -1,7 +1,7 @@
 import sys
 from typing import Any, Dict, Optional
 
-from PySide6.QtCore import Qt, QTimer
+from PySide6.QtCore import Qt, QTimer, Signal
 from PySide6.QtGui import QFont 
 
 from PySide6.QtWidgets import (
@@ -29,13 +29,18 @@ from PySide6.QtWidgets import (
 from ..core.action import Action
 from .style_manager import load_stylesheet
 
-class KeyTile(QFrame):
+class KeyTile(QPushButton):
+
+    triggered = Signal()
 
     def __init__(
         self,
         key_char: str,
         action: Optional[Action] = None,
         parent: Optional[QWidget] = None,
+
+
+       
     ):
         super().__init__(
             parent
@@ -128,7 +133,7 @@ class KeyTile(QFrame):
             self.action_label
         )
 
-        self.setStyleSheet(load_stylesheet())
+        self.clicked.connect(self.on_clicked)
 
     # ---------------------------------------------------------
     # Atualiza label
@@ -147,39 +152,38 @@ class KeyTile(QFrame):
     # Estilo padrão
     # ---------------------------------------------------------
 
-    def set_default_style(
-        self,
-    ) -> None:
+    def set_default_style(self) -> None:
 
-        if self.action:
-
-            active_border = "#3e4451"
-            bg_color = "#282c34"
-            text_color = "#abb2bf"
-
-        else:
-
-            active_border = "#21252b"
-            bg_color = "#1a1d23"
-            text_color = "#4b5263"
-
-        self.setStyleSheet(load_stylesheet())
-
+        self.setProperty("feedback", False)
         
+
+        self.style().unpolish(self)
+        self.style().polish(self)
 
     # ---------------------------------------------------------
     # Feedback visual
     # ---------------------------------------------------------
 
-    def trigger_visual_feedback(
-        self,
-    ) -> None:
+    def trigger_visual_feedback(self) -> None:
 
-        self.setStyleSheet(load_stylesheet())
+        self.setProperty("feedback", True)
 
-        self.repaint()
+        print(f">>> [KeyTile] Triggered: {self.key_char}")
+        
+        
+    
+
+        self.style().unpolish(self)
+        self.style().polish(self)
 
         QTimer.singleShot(
             120,
             self.set_default_style,
         )
+
+        
+
+    def on_clicked(self, checked: bool = False) -> None:
+        self.triggered.emit()
+
+    
