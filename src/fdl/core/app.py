@@ -8,13 +8,15 @@ from typing import Any, Dict, Optional
 import keyboard
 
 
-from  ..interface.style_manager import load_stylesheet
+from ..interface.style_manager import load_stylesheet
 from .action import Action
 from .action import ActionType
 from .actionRunner import ActionRunner
 from .hudActions import HudActions
-from  ..interface.macroDialog import MacroConfigDialog
-from  ..interface.mainHud import ActionDeckHUD
+from ..interface.macroDialog import MacroConfigDialog
+from ..interface.mainHud import ActionDeckHUD
+from ..interface.trayIcon import create_tray_icon
+from ..interface.hotkeyWorker import HotkeyWorker
 
 
 
@@ -58,178 +60,15 @@ from PySide6.QtWidgets import (
 
 
 
-
-
-
-
-class HotkeyWorker(QObject):
-
-    hotkey_triggered = Signal(
-        str
-    )
-
-    def __init__(self):
-        super().__init__()
-
-        self.hotkeys = []
-
-    def _hud_callback(
-        self,
-    ) -> None:
-
-        self.hotkey_triggered.emit(
-            "hud"
-        )
-
-    def _config_callback(
-        self,
-    ) -> None:
-
-        self.hotkey_triggered.emit(
-            "config"
-        )
-
-    def start(
-        self,
-    ) -> bool:
-
-        try:
-
-            hud_hotkey = keyboard.add_hotkey(
-                "ctrl+space",
-                self._hud_callback,
-            )
-
-            config_hotkey = keyboard.add_hotkey(
-                "ctrl+m",
-                self._config_callback,
-            )
-
-            self.hotkeys = [
-                hud_hotkey,
-                config_hotkey,
-            ]
-
-            print(
-                ">>> [HOTKEY] "
-                "Ctrl + Espaço registrado."
-            )
-
-            print(
-                ">>> [HOTKEY] "
-                "Ctrl + M registrado."
-            )
-
-            return True
-
-        except Exception as exc:
-
-            print(
-                f">>> [ERRO HOTKEY] "
-                f"{exc}"
-            )
-
-            return False
-
-    def stop(
-        self,
-    ) -> None:
-
-        for hotkey_handle in self.hotkeys:
-
-            try:
-
-                keyboard.remove_hotkey(
-                    hotkey_handle
-                )
-
-            except Exception as exc:
-
-                print(
-                    f">>> [WARNING] "
-                    f"Erro removendo hotkey: "
-                    f"{exc}"
-                )
-
-        self.hotkeys.clear()
-
-
-# =============================================================
-# 8. SYSTEM TRAY
-# =============================================================
-
-def create_tray_icon(
-    app: QApplication,
-) -> QSystemTrayIcon:
-
-    tray_icon = QSystemTrayIcon(
-        app
-    )
-
-    pixmap = QPixmap(
-        32,
-        32,
-    )
-
-    pixmap.fill(
-        QColor(
-            40,
-            44,
-            52,
-        )
-    )
-
-    painter = QPainter(
-        pixmap
-    )
-
-    painter.setPen(
-        QColor(
-            97,
-            175,
-            239,
-        )
-    )
-
-    painter.setFont(
-        QFont(
-            "Segoe UI",
-            12,
-            QFont.Weight.Bold,
-        )
-    )
-
-    painter.drawText(
-        pixmap.rect(),
-        Qt.AlignmentFlag.AlignCenter,
-        "M",
-    )
-
-    painter.end()
-
-    tray_icon.setIcon(
-        QIcon(
-            pixmap
-        )
-    )
-
-    return tray_icon
-
-
-# =============================================================
-# 9. MAIN
-# =============================================================
-
 def main() -> int:
 
-    app = QApplication(
-        sys.argv
-    )
+    app = QApplication(sys.argv)
 
-    app.setQuitOnLastWindowClosed(
-        False
-    )
 
+    
+    app.setQuitOnLastWindowClosed(False)
+
+    
     # =========================================================
     # ACTIONS
     # =========================================================
@@ -319,6 +158,8 @@ def main() -> int:
     )
 
     hud.center_on_screen()
+    hud.show()
+    hud.activateWindow()#ativar tela
 
     # =========================================================
     # HUD ACTIONS
@@ -524,5 +365,5 @@ def main() -> int:
 
     return app.exec()
 
-##########################
+
 
